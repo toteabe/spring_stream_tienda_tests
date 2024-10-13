@@ -1,5 +1,6 @@
 package org.iesvdm.tienda;
 
+import org.hibernate.Hibernate;
 import org.iesvdm.tienda.modelo.Fabricante;
 import org.iesvdm.tienda.modelo.Producto;
 import org.iesvdm.tienda.repository.FabricanteRepository;
@@ -28,7 +29,8 @@ class TiendaApplicationTests {
 			var fabs = fabRepo.findAll();
 			//Si no utilizas fetch EAGER debes inicializar la colección LAZY en la transaccion:
 			//Para inicializar la coleccion LAZY de productos en fabricante se invoca size (Ver tambien Hibernate.initialize)
-			//fabs.forEach(f-> f.getProductos().size());
+			fabs.forEach(f-> f.getProductos().size());
+			//Recuerda que los LAZY solo accesibles en el ámbito de una transaccion..
 			return fabs;
 		});
 	}
@@ -38,7 +40,8 @@ class TiendaApplicationTests {
 			var prods = prodRepo.findAll();
 			//Si no utilizas fetch EAGER debes inicializar la colección LAZY en la transaccion:
 			//Para inicializar la coleccion LAZY de productos en fabricante se invoca size (Ver tambien Hibernate.initialize)
-			//prods.forEach(p->p.getFabricante().getProductos().size());
+			prods.forEach(p->Hibernate.initialize(p.getFabricante().getProductos()));
+			//Recuerda que los LAZY solo accesibles en el ámbito de una transaccion..
 			return prods;
 		});
 	}
@@ -47,14 +50,21 @@ class TiendaApplicationTests {
 	void testAllFabricante() {
 		var listFabs = findAllFabs();
 		
-		listFabs.forEach(System.out::println);
+		listFabs.forEach(f -> {
+			System.out.println(">>"+f+ ":");
+			f.getProductos().forEach(System.out::println);
+		});
 	}
 	
 	@Test
 	void testAllProducto() {
 		var listProds = findAllProds();
 
-		listProds.forEach(System.out::println);		
+		listProds.forEach( p -> {
+			System.out.println(">>"+p+":"+"\nProductos mismo fabricante "+ p.getFabricante());
+			p.getFabricante().getProductos().forEach(pF -> System.out.println(">>>>"+pF));
+		});
+				
 	}
 	
 	/**

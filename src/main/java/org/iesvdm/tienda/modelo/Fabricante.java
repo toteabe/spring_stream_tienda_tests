@@ -18,7 +18,7 @@ public class Fabricante {
 
     private String nombre;
 
-    @OneToMany(mappedBy = "fabricante", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "fabricante")
     @ToString.Exclude
     private List<Producto> productos;
 
